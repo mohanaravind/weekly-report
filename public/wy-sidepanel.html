@@ -187,12 +187,20 @@
           anchor.classList.add('is-selected');
           
           this.selectedValue = anchor.dataset.title;
+          
+          this.dispatchEvent(new CustomEvent('switch', {detail: {context: this.selectedValue}}));
         });
       }
       
       hide() {
         // Collapse the panel
         this.$.container.classList.contains('is-expanded') && this._toggle();
+      }
+      
+      switchTo(hash) {
+        const link = this.$.links.querySelector(`[href="${hash}"].link-anchor`);                
+        
+        link && link.click();
       }
     }
     

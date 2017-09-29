@@ -27,7 +27,15 @@
         
     <link rel="import" href="/wy-app.html"> 
   </head>
-  <body>      
+  <body>
+    <div id="spinner" class="spinner"></div>
     <wy-app></wy-app>
   </body>
+  
+  <script>
+    // TODO: Hook to a right event
+    window.addEventListener('WebComponentsReady', function() {                  
+      document.getElementById('spinner').style.display = 'none';
+    });
+  </script>
 </html>

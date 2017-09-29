@@ -1,13 +1,22 @@
 <link rel="import" href="bower_components/polymer/polymer-element.html">
+<link rel="import" href="bower_components/polymer/lib/utils/import-href.html">
 
 <link rel="import" href="wy-sidepanel.html">
 <link rel="import" href="wy-myreport.html">
+
+<link rel="import" href="wy-teamreport.html">
+<link rel="import" href="wy-settings.html">
 
 <dom-module id="wy-app">
   <template>
     <style>
       :host {
         display: block;
+      }
+      
+      .main {
+        height: 100%;
+        width: 100%;
       }
             
       .header {
@@ -29,12 +38,14 @@
     </style> 
         
     <div id="container">
-      <wy-sidepanel id="sidepanel" selected-value="{{title}}" on-toggle="_blur"></wy-sidepanel>
+      <wy-sidepanel id="sidepanel" selected-value="{{title}}" on-toggle="_blur" on-switch="_switch"></wy-sidepanel>
       <header class="header" on-click="_hideSidepanel">              
         <h1 class="title">[[title]]</h1>
       </header>
-      <main class="main" on-click="_hideSidepanel">
-        <wy-myreport></wy-myreport>
+      <main id="main" class="main" on-click="_hideSidepanel">
+        <div>
+          Loading...
+        </div>
       </main>
     </div>
   </template>
@@ -43,12 +54,52 @@
     class App extends Polymer.Element {
       static get is() { return "wy-app"; }
       
+      connectedCallback() {
+        super.connectedCallback();
+        
+        window.location.hash = window.location.hash || '#myreport';
+        
+        // Initial load
+        this.$.sidepanel.switchTo(window.location.hash);        
+      }
+      
       _blur() {        
         this.$.container.classList.toggle('is-side-panel-expanded');
       }
       
       _hideSidepanel() {
         this.$.sidepanel.hide();
+      }
+      
+      _switch(event) {
+        const context = event.detail.context;        
+        let tag = null;
+        
+        switch (context) {
+          case 'My Report':
+            tag = 'wy-myreport';            
+            break;
+          case 'Team Report':
+            tag = 'wy-teamreport';
+            break;
+            
+          case 'Settings':
+            tag = 'wy-settings';
+            break;
+        }
+                            
+        Polymer.importHref('/' + tag + '.html', () => {
+          const main = this.$.main;
+          
+          // Create the new view element
+          const elem = document.createElement(tag);                    
+          
+          // Remove the existing children
+          main.removeChild(main.children[0]);
+          
+          // Add it to the DOM
+          main.appendChild(elem);
+        });                
       }
     }
     
