@@ -1,0 +1,36 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<dom-module id="wy-teamreport">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      
+      .container {        
+        display: flex;
+        color: white;
+      }
+      
+            
+    </style> 
+    
+        
+    <div class="container">                  
+      Under construction...
+    </div>        
+  </template>
+  
+  <script>    
+    class TeamReport extends Polymer.Element {
+      static get is() { return "wy-teamreport"; }                        
+    }
+    
+    
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-teamreport', TeamReport);
+    });
+  </script>
+</dom-module>

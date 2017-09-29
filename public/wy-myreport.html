@@ -28,12 +28,29 @@
         background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
       }
       
-      .submit-button {
+      .btn {
         padding: 10px;
         border: thin solid #f9f9f9;                
         offset: none;
         border-radius: 20px;
         width: 100px;        
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0);
+	      color: white;        
+      }
+      
+      .btn:hover {
+        background-color: white;
+        color: #54a7b2;
+      }
+
+      .btn:focus {
+        background-color: white;
+        color: #54a7b2;
+        outline: 0;
+      }
+
+      .btn:active {
         background-color: white;
         color: #54a7b2;
       }
@@ -69,7 +86,7 @@
     <div class="spacer"></div>
     
     <footer class="footer">
-        <button class="submit-button"><span class="check-icon">&check;</span>Submit</button>
+        <button class="btn"><span class="check-icon">&check;</span>SUBMIT</button>
     </footer>
   </template>
   
