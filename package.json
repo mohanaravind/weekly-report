@@ -1,0 +1,26 @@
+{
+  "name": "polymer-custom-element",
+  "version": "0.0.1",
+  "description": "A simple tutorial to make your first web component with Polymer!",
+  "main": "server.js",
+  "scripts": {
+    "start": "rm -rf bower_components && bower install && node server.js"
+  },
+  "dependencies": {
+    "express": "^4.15.3",
+    "bower": "^1.8.0"
+  },
+  "engines": {
+    "node": "6.10.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/polymer-custom-element"
+  },
+  "license": "MIT",
+  "keywords": [
+    "polymer",
+    "custom element",
+    "web component",
+    "glitch"
+  ]
+}

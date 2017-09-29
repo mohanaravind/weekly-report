@@ -1,0 +1,59 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="wy-sidepanel.html">
+<link rel="import" href="wy-myreport.html">
+
+<dom-module id="wy-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+            
+      .header {
+        height: 50px;
+        text-align: center;	
+        color: white;
+        padding-bottom: 15px;
+      }
+      
+      .title {
+        margin: 0;
+        font-weight: lighter;
+      }
+      
+      .is-side-panel-expanded .title, .is-side-panel-expanded .main {
+        filter: blur(2px);
+      }
+      
+    </style> 
+        
+    <div id="container">
+      <wy-sidepanel id="sidepanel" selected-value="{{title}}" on-toggle="_blur"></wy-sidepanel>
+      <header class="header" on-click="_hideSidepanel">              
+        <h1 class="title">[[title]]</h1>
+      </header>
+      <main class="main" on-click="_hideSidepanel">
+        <wy-myreport></wy-myreport>
+      </main>
+    </div>
+  </template>
+  
+  <script>    
+    class App extends Polymer.Element {
+      static get is() { return "wy-app"; }
+      
+      _blur() {        
+        this.$.container.classList.toggle('is-side-panel-expanded');
+      }
+      
+      _hideSidepanel() {
+        this.$.sidepanel.hide();
+      }
+    }
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-app', App);
+    });
+  </script>
+</dom-module>

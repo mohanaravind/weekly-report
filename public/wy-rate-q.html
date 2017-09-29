@@ -1,0 +1,90 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<dom-module id="wy-rate-q">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      
+      .question {
+        color: white;
+      }
+      
+      .rating {        
+        display: flex;
+        justify-content: space-evenly;
+      }
+      
+      .rate {
+        color: white;
+        font-size: 3em;
+        height: 50px;
+	      width: 50px;
+        cursor: pointer;
+      }
+      
+      .scale {
+        color: white;
+        padding-top: 25px;
+      }
+      
+    </style> 
+        
+    <div>
+      <label class="question">{{question}}</label>
+      <div class="rating" on-click="_rate">
+        <span class="scale">Awful</span>
+      
+        <span class="rate" data-select="&#10122;" data-deselect="&#10112;" data-value="1">&#10112;</span>
+        <span class="rate" data-select="&#10123;" data-deselect="&#10113;" data-value="2">&#10113;</span>
+        <span class="rate" data-select="&#10124;" data-deselect="&#10114;" data-value="3">&#10114;</span>
+        <span class="rate" data-select="&#10125;" data-deselect="&#10115;" data-value="4">&#10115;</span>
+        <span class="rate" data-select="&#10126;" data-deselect="&#10116;" data-value="5">&#10116;</span>
+
+        <span class="scale">Great!</span>
+      </div>      
+    </div>
+  </template>
+  
+  <script>    
+    class RateQ extends Polymer.Element {
+      static get is() { return "wy-rate-q"; }
+                  
+      static get properties() {
+        return {
+          question: String,
+          value: Number
+        };
+      }
+      
+      connectedCallback() {
+        super.connectedCallback();                
+      }
+      
+      _rate(event) {
+        const selected = event.target;
+        
+        if (selected.dataset.select) {
+          event.target.innerHTML = selected.dataset.select;
+          
+          // If there is an existing selection and it is not what got selected now then clear it
+          if (this._lastSelected && selected !== this._lastSelected) {
+            this._lastSelected.innerHTML = this._lastSelected.dataset.deselect;
+          }
+          
+          // Set the currently selected item as the last selected item
+          this._lastSelected = selected;
+          
+          
+          // Expose the rate value
+          this.value = selected.dataset.value;
+        }
+      }
+    }
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-rate-q', RateQ);
+    });
+  </script>
+</dom-module>

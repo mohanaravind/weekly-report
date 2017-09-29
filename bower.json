@@ -1,0 +1,10 @@
+{
+  "name": "polymer-custom-element",
+  "version": "0.0.1",
+  "description": "A simple tutorial to make your first web component with Polymer!",
+  "license": "MIT",
+  "dependencies": {
+    "polymer": "polymer/polymer#^2.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
+  }
+}
