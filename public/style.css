@@ -1,0 +1,21 @@
+/* styles for the demo page*/
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background-color: #ececec;
+  margin: 0;
+  background: linear-gradient(to right, #67b26f, #4ca2cd);
+  padding: 20px;
+  display: flex;
+	justify-content: center;
+}
+
+
+
+
+
+

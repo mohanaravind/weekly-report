@@ -1,0 +1,111 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+<link rel="import" href="bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="wy-text-q.html">
+<link rel="import" href="wy-rate-q.html">
+
+<dom-module id="wy-myreport">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      
+      .container {        
+        display: flex;
+      }
+      
+      .question {
+        margin-bottom: 25px;
+      }
+      
+      .spacer {
+        height: 1px;
+        width: 100%;        
+        margin-bottom: 20px;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
+      }
+      
+      .submit-button {
+        padding: 10px;
+        border: thin solid #f9f9f9;                
+        offset: none;
+        border-radius: 20px;
+        width: 100px;        
+        background-color: white;
+        color: #54a7b2;
+      }
+      
+      .check-icon {
+        margin-right: 8px;
+      }
+            
+      .footer {
+        display: flex;
+        justify-content: flex-end;
+      }
+            
+    </style> 
+    
+        
+    <div>                  
+      <template is="dom-repeat" items="{{data}}">
+
+        <div class="spacer"></div>
+        
+        <template is="dom-if" if="{{item.isText}}">          
+          <wy-text-q question="{{item.question}}" class="question" data-id$="{{item.qtype}}"></wy-text-q>
+        </template>
+                
+        <template is="dom-if" if="{{item.isRate}}">            
+          <wy-rate-q question="{{item.question}}" class="question"></wy-rate-q>
+        </template>                
+        
+      </template>
+    </div>
+    
+    <div class="spacer"></div>
+    
+    <footer class="footer">
+        <button class="submit-button"><span class="check-icon">&check;</span>Submit</button>
+    </footer>
+  </template>
+  
+  <script>    
+    class MyReport extends Polymer.Element {
+      static get is() { return "wy-myreport"; }                  
+      
+      static get properties() {
+        return {
+          data: {
+            type: Array,
+            value: [
+              {
+                isText: true,
+                question: 'What challenges are you facing? Where are you stuck?'
+              },
+              {
+                isText: true,
+                question: 'What is the best thing that happened to you this week?'
+              },
+              {
+                isRate: true,
+                question: 'How are you feeling?'
+              }
+            ]
+          }
+        };
+      }
+      
+      
+    }
+    
+    
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-myreport', MyReport);
+    });
+  </script>
+</dom-module>

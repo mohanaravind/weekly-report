@@ -1,0 +1,203 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<dom-module id="wy-sidepanel">
+  <template>
+    <style>
+      .container {
+        display: block;
+        width: 0;
+        position: absolute;
+        left: 0;        
+        bottom: 0;
+        top: 0;
+        transition: width 0.2s;
+        z-index: 1;
+      }
+      
+      .container.is-expanded {
+        width: 200px;
+      }
+      
+      .hamburger-icon {        
+        cursor: pointer;
+        position: absolute;	
+        top: -10px;
+        z-index: 1;
+        padding: 30px;
+      }
+      
+      .hamburger-icon div {
+        width: 35px;
+        height: 2px;
+        background-color: white;
+        margin: 8px 0;        
+      }
+      
+      .bar {
+        width: 35px;
+        height: 5px;
+        background-color: #333;
+        margin: 6px 0;
+        transition: 0.2s;
+      }
+      
+      .is-expanded .bar {
+        background-color: black;
+      }
+
+      .is-expanded .bar1 {        
+        transform: rotate(-45deg) translate(-9px, 6px) ;
+      }
+
+      .is-expanded .bar2 {opacity: 0;}
+
+      .is-expanded .bar3 {        
+        transform: rotate(45deg) translate(-8px, -8px) ;
+      }      
+      
+      .blur {
+        filter: blur(13px);
+        position: absolute;
+      }
+      
+      .hidden-container {
+        position: absolute;
+        bottom: 0;
+        top: 0;
+        right: 0;
+        left: 0;
+        background-color: white;
+        box-shadow: -1px -3px 12px 2px darkgrey;
+      }
+      
+      .links {
+        list-style: none;
+        margin-top: 70px;        
+        opacity: 0;
+        transition: none;
+        padding: 0;
+      }
+      
+      .is-expanded .links {
+        opacity: 1;        
+        transition: opacity 0.5s cubic-bezier(0.4, 0, 1, 1);
+        
+      }
+      
+      .link-icon {
+        font-size: xx-large;
+      }
+      
+      .link {
+        margin-left: 30px;
+        height: 50px;
+	      font-size: large;
+        cursor: pointer;
+        position: relative;
+      }
+            
+      .link-anchor {
+        text-decoration: none;
+        display: block;
+        height: 100%;
+        width: 100%;
+        color: black;
+      }
+      
+      .link-anchor.is-selected {
+        color: #67b26f;
+      }
+      
+      .link-text {            
+        position: absolute;
+        top: 13px;
+        left: 44px;
+      }
+            
+      .is-selected .link-text {
+        font-weight: bold;        
+      }
+                            
+    </style> 
+    
+<!--     Icon reference from
+  https://www.toptal.com/designers/htmlarrows/symbols/ 
+-->
+
+    <div id="container" class="container">
+      <div class="hamburger-icon" on-click="_toggle">
+        <div class="bar bar1"></div>
+        <div class="bar bar2"></div>
+        <div class="bar bar3"></div>
+      </div>
+      
+      <div class="hidden-container">
+        <ul id="links" class="links" on-click="_switchLink">
+          <li class="link">
+            <a class="link-anchor is-selected" href="#myreport" data-title="My Report">
+              <span class="link-icon">&#9856;</span>
+              <span class="link-text" href="#myreport">My Report</span>
+            </a>
+          </li>
+          <li class="link">
+            <a class="link-anchor" href="#teamreport" data-title="Team Report">
+              <span class="link-icon">&#9854;</span>
+              <span class="link-text" href="#teamreport">Team Report</span>
+            </a>
+          </li>
+          <li class="link">
+            <a class="link-anchor" href="#settings" data-title="Settings">
+              <span class="link-icon">&#9883;</span>
+              <span class="link-text" href="#settings">Settings</span>
+            </a>
+          </li>          
+        </ul>        
+      </div>      
+    </div>
+
+  </template>
+  
+  <script>    
+    class Sidepanel extends Polymer.Element {
+      static get is() { return "wy-sidepanel"; }
+      
+      static get properties() {
+        return {
+          selectedValue: {
+            type: String,
+            value: 'My Report',
+            notify: true
+          }
+        };
+      }
+                  
+      _toggle() {
+        // Fire an event
+        this.dispatchEvent(new CustomEvent('toggle', {}));
+        
+        this.$.container.classList.toggle('is-expanded');
+      }
+      
+      _switchLink(event) {                       
+        window.requestAnimationFrame(() => {
+          // Remove the existing selection
+          this.$.links.querySelector('.link-anchor.is-selected').classList.remove('is-selected');          
+          
+          const anchor = this.$.links.querySelector(`[href="${location.hash}"].link-anchor`);
+          anchor.classList.add('is-selected');
+          
+          this.selectedValue = anchor.dataset.title;
+        });
+      }
+      
+      hide() {
+        // Collapse the panel
+        this.$.container.classList.contains('is-expanded') && this._toggle();
+      }
+    }
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-sidepanel', Sidepanel);
+    });
+  </script>
+</dom-module>
