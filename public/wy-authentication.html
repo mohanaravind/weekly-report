@@ -1,0 +1,135 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+<script src="https://www.gstatic.com/firebasejs/4.3.1/firebase.js"></script>
+
+<link rel="import" href="wy-button.html">
+<link rel="import" href="wy-loader.html">
+
+<dom-module id="wy-authentication">
+  <template>    
+    <style>
+      :host {
+        display: flex;        
+        justify-content: center;
+      }
+      
+      #container {        
+        display: flex;	      
+        flex-direction: column;
+        color: white;
+      }
+      
+      #loader {
+        position: absolute;
+      }
+      
+      #container.blur {        
+        /* filter: blur(2px); */
+        display: none;
+      }
+      
+      .field {
+        padding: 5px;
+        display: flex;
+	      justify-content: flex-end;
+      }
+      
+      .input {
+        padding: 10px;
+	      border: thin solid #cbcbcb;
+        border-radius: 5px;
+      }                  
+    </style> 
+    
+        
+    <div id="container" class="blur" on-keydown="_onEnter">                        
+      <header class="header">        
+          <h1 class="title">My Weekly</h1>
+      </header>      
+      <div class="field">
+        <input id="email" type="email" class="input" placeholder="trigram@3ds.com"/>
+      </div>
+      <div class="field">
+        <input id="password" type="password" class="input" placeholder="password"/>
+      </div>
+      <div class="field">
+        <wy-button on-click="_signIn">
+          SIGN IN
+        </wy-button>
+      </div>
+    </div>
+    
+    <!-- To display the loader -->
+    <wy-loader id="loader" visible></wy-loader>
+    
+  </template>
+  
+  <script>    
+    class Authentication extends Polymer.Element {
+      static get is() { return "wy-authentication"; }                        
+      
+      connectedCallback() {
+        super.connectedCallback();
+        
+        var config = {
+          apiKey: 'AIzaSyBs0wCJtbUZNe0gbvP6ab3tJjUDWi4XclU',
+          authDomain: '3ds.com',
+          databaseURL: 'https://we-submit.firebaseio.com',
+          storageBucket: "we-submit.appspot.com",
+          messagingSenderId: "zb8",
+        };
+        firebase.initializeApp(config);
+        
+        firebase.auth().onAuthStateChanged((user) => {
+          this.$.loader.visible = false;
+          
+          if (user) {
+            // User is signed in                        
+            this.dispatchEvent(new CustomEvent('auth-success', {detail: {user}}));
+          } else {
+            // Show the sign in form
+            this.$.container.classList.remove('blur');
+          }
+        });        
+      }
+      
+      _onEnter(event) {
+        if (event.keyCode == 13) {
+          this._signIn();
+        }
+      }
+      
+      _signIn() {
+        const email = this.$.email.value;
+        const password = this.$.password.value;
+        
+        // Blur the sign in form
+        this.$.container.classList.add('blur');
+        this.$.loader.visible = true;               
+        
+        firebase.auth().signInWithEmailAndPassword(email, password).catch((error) => {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;      
+        });                    
+      }
+      
+      signOut() {
+        firebase.auth().signOut().then(function() {
+          // Sign-out successful.
+          window.location.hash = '';
+          window.location.reload();                              
+        }).catch(function(error) {          
+          //TODO: Show error page
+          // An error happened.
+          console.log(error);
+        });
+      }      
+    }
+    
+    
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-authentication', Authentication);
+    });
+  </script>
+</dom-module>

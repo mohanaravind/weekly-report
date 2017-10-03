@@ -19,12 +19,26 @@
         
     <div class="container">                  
       Under construction...
+      
+      <button on-click="_test">Test</button>
     </div>        
   </template>
   
   <script>    
     class TeamReport extends Polymer.Element {
       static get is() { return "wy-teamreport"; }                        
+      
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+      
+      _test() {
+
+        
+        
+      }
+      
     }
     
     
