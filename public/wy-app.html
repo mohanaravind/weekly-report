@@ -11,6 +11,7 @@
 
 <link rel="import" href="wy-authentication.html">
 <link rel="import" href="wy-data.html">
+<link rel="import" href="wy-loader.html">
 
 <dom-module id="wy-app">
   <template>
@@ -69,20 +70,22 @@
         </header>
         <div id="content">
           <!-- View to display the current user's report -->
-          <template is="dom-if" if="{{_isContext('#myreport', context)}}">
+<!--           <template is="dom-if" if="{{_isContext('#myreport', context)}}"> -->
+          <template is="dom-if" if="{{_isMyReport}}">
             <wy-myreport id="myreport" on-save-report="_saveReport"></wy-myreport>
           </template>
           
           <!-- View to display all the team members report -->
-          <template is="dom-if" if="{{_isContext('#teamreport', context)}}">
+          <template is="dom-if" if="{{_isTeamReport}}">
             <wy-teamreport id="teamreport"></wy-teamreport>
           </template>
           
           <!-- Settings view -->
-          <template is="dom-if" if="{{_isContext('#settings', context)}}">
+          <template is="dom-if" if="{{_isSettings}}">
             <wy-settings id="settings"></wy-settings>
           </template>
-        </div>        
+        </div>
+<!--         <wy-loader id="loader" visible></wy-loader> -->
       </div>            
     </template>
       
@@ -99,10 +102,12 @@
             type: Boolean,
             value: false
           },
+          _isMyReport: Boolean,
+          _isTeamReport: Boolean,
+          _isSettings: Boolean,
           context: {            
             type: String,
-            value: '#myreport',
-            notify: true
+            value: '#myreport'
           },
           uid: String
         };
@@ -116,7 +121,7 @@
         this._expanded = !this._expanded;
                 
         // Add a blur to the main content (Firefox struggles to render blur filter)
-        if (!!window.chrome && !!window.chrome.webstore)
+        if (!!window.chrome)
           this.root.querySelector('#main').classList.toggle('blur');
       }
       
@@ -134,17 +139,30 @@
             
       async _switch() {
         const context = this.context;
+        
+        this._isMyReport = false;
+        this._isTeamReport = false;
+        this._isSettings = false;
                                 
         switch (context) {
           case '#myreport':
+            
             // Get the report data
             const weekNum = this._weekOfYear(new Date());
             const report = await this.$.data.fetchReport(this.uid, weekNum);
-            report && this.root.querySelector('#myreport').initReport(report);
+            this._isMyReport = true;
+            
+            Polymer.Async.microTask.run(() => {
+              report && this.root.querySelector('#myreport').initReport(report);
+            });
             break;
-          case '#teamreport':            
+          case '#teamreport':
+            //TODO
+            this._isTeamReport = true;
             break;            
-          case '#settings':            
+          case '#settings':           
+            //TODO
+            this._isSettings = true;
             break;
           case '':
             // Signout
