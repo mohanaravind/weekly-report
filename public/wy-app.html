@@ -59,7 +59,8 @@
     
     <!-- If authenticated -->
     <template is="dom-if" if="{{_isAuthenticated}}">      
-      <wy-sidepanel id="sidepanel" expanded="{{_expanded}}" selected-value="{{title}}" on-switch="_switch"></wy-sidepanel>
+      <wy-sidepanel id="sidepanel" expanded="{{_expanded}}" title="{{title}}" 
+                    context="{{context}}" on-switch="_switch" ></wy-sidepanel>
       <wy-hamburger-icon id="hamburgericon" expanded="{{_expanded}}" on-click="_toggleSidePanel"></wy-hamburger-icon>
 
       <div id="main" on-click="_hideSidePanel">
@@ -68,18 +69,18 @@
         </header>
         <div id="content">
           <!-- View to display the current user's report -->
-          <template is="dom-if" if="{{context === '#myreport'}}">
-            <wy-myreport on-save-report="_saveReport"></wy-myreport>
+          <template is="dom-if" if="{{_isContext('#myreport', context)}}">
+            <wy-myreport id="myreport" on-save-report="_saveReport"></wy-myreport>
           </template>
           
           <!-- View to display all the team members report -->
-          <template is="dom-if" if="{{context === '#teamreport'}}">
-            <wy-teamreport></wy-teamreport>
+          <template is="dom-if" if="{{_isContext('#teamreport', context)}}">
+            <wy-teamreport id="teamreport"></wy-teamreport>
           </template>
           
           <!-- Settings view -->
-          <template is="dom-if" if="{{context === '#settings'}}">
-            <wy-settings></wy-settings>
+          <template is="dom-if" if="{{_isContext('#settings', context)}}">
+            <wy-settings id="settings"></wy-settings>
           </template>
         </div>        
       </div>            
@@ -98,31 +99,17 @@
             type: Boolean,
             value: false
           },
-          context: {
-            type: String            
+          context: {            
+            type: String,
+            value: '#myreport',
+            notify: true
           },
           uid: String
         };
-      }
+      }            
       
-      async connectedCallback() {
-        super.connectedCallback();
-        
-        
-        // Get the current context
-        this.context = 'myreport';
-        
-        // window.location.hash = window.location.hash || '#myreport';
-                        
-        // Get the report data
-        // const weekNum = this._weekOfYear(new Date());
-        // const report = await this.$.data.fetchReport('wn1', weekNum);
-        // report && this.$.myreport.initReport(report);
-        
-        // Initial load
-        // this.$.sidepanel.switchTo(window.location.hash);  
-        
-      
+      _isContext(key, context) {        
+        return key === context;
       }
       
       _toggleSidePanel() {                        
@@ -145,42 +132,34 @@
         return Math.ceil((((d-new Date(d.getFullYear(),0,1))/8.64e7)+1)/7);
       }
             
-      _switch(event) {
-        const context = event.detail.context;        
-        let tag = null;
-        
+      async _switch() {
+        const context = this.context;
+                                
         switch (context) {
-          case 'My Report':
-            tag = 'wy-myreport';            
+          case '#myreport':
+            // Get the report data
+            const weekNum = this._weekOfYear(new Date());
+            const report = await this.$.data.fetchReport(this.uid, weekNum);
+            report && this.root.querySelector('#myreport').initReport(report);
             break;
-          case 'Team Report':
-            tag = 'wy-teamreport';
+          case '#teamreport':            
             break;            
-          case 'Settings':
-            tag = 'wy-settings';
+          case '#settings':            
             break;
-          case 'SignOut':
+          case '':
+            // Signout
             this.root.querySelector('#auth').signOut();
-            return;                   
-        }
-                            
-        Polymer.importHref('/' + tag + '.html', () => {
-          const content = this.root.querySelector('#content');
-          
-          // Create the new view element
-          const elem = document.createElement(tag);                    
-          
-          // Remove the existing children
-          content.removeChild(content.children[0]);
-          
-          // Add it to the DOM
-          content.appendChild(elem);
-        });                
+            break;                   
+        }                                         
       }
       
       _onAuthSuccess(event) {
         this._isAuthenticated = true;
         this.uid = event.detail.user.uid;
+        
+        // Get the current context
+        this.context = window.location.hash || this.context;                
+        this._switch();
       }
             
       _saveReport(event) {
