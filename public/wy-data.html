@@ -1,58 +1,17 @@
 <link rel="import" href="bower_components/polymer/polymer-element.html">
 <script src="https://www.gstatic.com/firebasejs/4.3.1/firebase.js"></script>
 
-<dom-module id="wy-data">
-  <template>
-    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.3.0/firebaseui.css" />
-    <style>
-      :host {
-        display: block;
-        padding: 10px;
-      }
-      
-      .container {        
-        display: flex;
-        flex-direction: column;
-        color: white;
-      }
-      
-            
-    </style> 
-    
-        
-    <div class="container">                        
-      <div id="firebaseui-auth-container"></div>
-    </div>        
-  </template>
-  
+<dom-module id="wy-data">  
   <script>    
     class Data extends Polymer.Element {
       static get is() { return "wy-data" }                        
       
       connectedCallback() {
-        super.connectedCallback();
-        
-        var config = {
-          apiKey: 'AIzaSyBs0wCJtbUZNe0gbvP6ab3tJjUDWi4XclU',
-          authDomain: '3ds.com',
-          databaseURL: 'https://we-submit.firebaseio.com',
-          storageBucket: "we-submit.appspot.com",
-          messagingSenderId: "submit",
-        };
-        firebase.initializeApp(config);
-        
-        firebase.auth().signInAnonymously().catch(function(error) {
-          // Handle Errors here.
-          var errorCode = error.code;
-          var errorMessage = error.message;          
-        });
-        
+        super.connectedCallback();        
       }
                        
       static get properties() {
-        return {
-          _database: Object
-        };
+        
       }
                              
       

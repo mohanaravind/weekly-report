@@ -3,117 +3,118 @@
 <dom-module id="wy-sidepanel">
   <template>
     <style>
-      .container {        
-        width: 0;
-        position: absolute;
-        left: 0;        
+      .container {                
+        position: absolute;        
+        left: -200px;
         bottom: 0;
         top: 0;
-        transition: width 0.2s;
+        transition: left 0.2s;
         z-index: 1;
+        background-color: white;
+	      box-shadow: -1px -3px 12px 2px darkgrey;
       }
             
       :host([expanded]) .container {
-        width: 200px;
-      }
-                  
-      .hidden-container {
-        position: absolute;
-        bottom: 0;
-        top: 0;
-        right: 0;
         left: 0;
-        background-color: white;
-        box-shadow: -1px -3px 12px 2px darkgrey;
       }
+
       
       .links {
         list-style: none;
         margin-top: 70px;        
-        opacity: 0;
-        transition: none;
-        padding: 0;
+        padding: 0;        
       }
       
-      :host([expanded]) .links, :host([expanded]) .link {
-        opacity: 1;        
-        transition: opacity 0.5s cubic-bezier(0.4, 0, 1, 1);        
-      }
       
       .link-icon {
         font-size: xx-large;
       }
       
       .link {
-        margin-left: 30px;
+        padding: 0 30px;
         height: 50px;
 	      font-size: large;
         cursor: pointer;
-        position: relative;
-        opacity: 0;
+        border-bottom: thin solid #e9e9e9;
+        display: flex;	
+	      align-items: center;        
       }
-            
+                        
       .link-anchor {
         text-decoration: none;
-        display: block;
-        height: 100%;
-        width: 100%;
         color: black;
-        border-bottom: thin solid #e9e9e9;
+        display: flex;
+        background-image: none;
+        -webkit-tap-highlight-color: transparent;
       }
+      
+      .link-anchor::-moz-focus-inner, .link-anchor:focus {
+        border: 0;
+      }
+             
       
       .link-anchor.is-selected {
         color: #67b26f;
       }
       
-      .link-text {            
-        position: absolute;
-        top: 13px;
-        left: 44px;
-      }
-            
-      .is-selected .link-text {
-        font-weight: bold;        
+      /* The icons */
+      
+      .link-anchor[href="#myreport"]:before {
+        content: '\2680';
       }
       
-      .is-selected:after {
-        content: '\2620';
+      .link-anchor[href="#teamreport"]:before {
+        content: '\274D';
       }
+      
+      .link-anchor[href="#settings"]:before {
+        content: '\269B';
+      }      
+            
+      .link-anchor[href=""]:before {
+        content: '\27B2';
+      }
+      
+      .link-anchor:before {
+        font-size: x-large;
+        margin-top: -6px;
+	      margin-right: 8px;
+      }
+      
+      .signout {
+        position: absolute;
+	      bottom: 20px;
+	      border: none;
+      }
+      
+      
                             
     </style> 
     
     <!-- Icon reference from: https://www.toptal.com/designers/htmlarrows/symbols/ -->
-    <div id="container" class="container">
-      <div class="hidden-container">
-        <ul id="links" class="links" on-click="_switchLink">
-          <li class="link">
-            <a class="link-anchor is-selected" href="#myreport" data-title="My Report">
-<!--               <span class="link-icon">&#9856;</span> -->
-<!--               <span class="link-text" href="#myreport">My Report</span> -->
-              &#9856;
-              My Report
-            </a>
-          </li>
-          <li class="link">
-            <a class="link-anchor" href="#teamreport" data-title="Team Report">
-              <span class="link-icon">&#9854;</span>
-              <span class="link-text" href="#teamreport">Team Report</span>
-            </a>
-          </li>
-          <li class="link">
-            <a class="link-anchor" href="#settings" data-title="Settings">
-              <span class="link-icon">&#9883;</span>
-              <span class="link-text" href="#settings">Settings</span>
-            </a>
-          </li>
-          <li class="link">
-            <a class="link-anchor" href="#signout" data-title="SignOut">
-              <span class="link-icon">&#9760;</span>
-              <span class="link-text" href="signout">Sign Out</span>
-            </a>
-          </li>
-        </ul>        
-      </div>      
+    <div id="container" class="container">              
+      <ul id="links" class="links" on-click="_switchLink">
+        <li class="link">
+          <a class="link-anchor is-selected" href="#myreport" data-title="My Report">
+            My Report
+          </a>
+        </li>
+        <li class="link">
+          <a class="link-anchor" href="#teamreport" data-title="Team Report">              
+            Team Report
+          </a>
+        </li>
+        <li class="link">
+          <a class="link-anchor" href="#settings" data-title="Settings">              
+            Settings
+          </a>
+        </li>
+        <li class="link signout">
+          <a class="link-anchor" href="" data-title="SignOut">
+            Sign Out
+          </a>
+        </li>
+      </ul>      
     </div>
   </template>
   
@@ -136,15 +137,20 @@
         };
       }
             
-      _switchLink(event) {                        
+      _switchLink(event) {
+        // Get the anchor element even if it was the list that got clicked
+        const anchor = event.target.dataset.title ? event.target : event.target.children[0];        
+        
         // Remove the existing selection
         this.$.links.querySelector('.link-anchor.is-selected').classList.remove('is-selected');          
         
-        const anchor = this.$.links.querySelector(`[href="${location.hash}"].link-anchor`);
+        // Set the clicked anchor as selected
         anchor.classList.add('is-selected');
 
+        // Set this as the selected value
         this.selectedValue = anchor.dataset.title;
 
+        // Let others know that there is a context switch
         this.dispatchEvent(new CustomEvent('switch', {detail: {context: this.selectedValue}}));        
       }
       

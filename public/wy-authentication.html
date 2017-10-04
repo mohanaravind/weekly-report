@@ -115,9 +115,7 @@
       
       signOut() {
         firebase.auth().signOut().then(function() {
-          // Sign-out successful.
-          window.location.hash = '';
-          window.location.reload();                              
+          console.log('Signed out sucessfully!');
         }).catch(function(error) {          
           //TODO: Show error page
           // An error happened.

@@ -10,7 +10,7 @@
 <link rel="import" href="wy-settings.html">
 
 <link rel="import" href="wy-authentication.html">
-<!-- <link rel="import" href="wy-data.html"> -->
+<link rel="import" href="wy-data.html">
 
 <dom-module id="wy-app">
   <template>
@@ -62,12 +62,25 @@
       <wy-sidepanel id="sidepanel" expanded="{{_expanded}}" selected-value="{{title}}" on-switch="_switch"></wy-sidepanel>
       <wy-hamburger-icon id="hamburgericon" expanded="{{_expanded}}" on-click="_toggleSidePanel"></wy-hamburger-icon>
 
-      <div id="main">
+      <div id="main" on-click="_hideSidePanel">
         <header class="header">        
           <h1 class="title">[[title]]</h1>
         </header>
-        <div id="content">  
-          <wy-myreport id="myreport" on-save-report="_saveReport"></wy-myreport>                    
+        <div id="content">
+          <!-- View to display the current user's report -->
+          <template is="dom-if" if="{{context === '#myreport'}}">
+            <wy-myreport on-save-report="_saveReport"></wy-myreport>
+          </template>
+          
+          <!-- View to display all the team members report -->
+          <template is="dom-if" if="{{context === '#teamreport'}}">
+            <wy-teamreport></wy-teamreport>
+          </template>
+          
+          <!-- Settings view -->
+          <template is="dom-if" if="{{context === '#settings'}}">
+            <wy-settings></wy-settings>
+          </template>
         </div>        
       </div>            
     </template>
@@ -85,13 +98,19 @@
             type: Boolean,
             value: false
           },
+          context: {
+            type: String            
+          },
           uid: String
         };
       }
       
       async connectedCallback() {
         super.connectedCallback();
-                
+        
+        
+        // Get the current context
+        this.context = 'myreport';
         
         // window.location.hash = window.location.hash || '#myreport';
                         
@@ -112,6 +131,11 @@
         // Add a blur to the main content (Firefox struggles to render blur filter)
         if (!!window.chrome && !!window.chrome.webstore)
           this.root.querySelector('#main').classList.toggle('blur');
+      }
+      
+      _hideSidePanel() {
+        // Collapse the sidepanel if it is already expanded
+        this._expanded && this._toggleSidePanel();
       }
       
       _weekOfYear(date) {
@@ -161,7 +185,8 @@
             
       _saveReport(event) {
         const weekNum = this._weekOfYear(new Date());
-        this.$.data.saveReport(this._uid, weekNum, event.detail.data);
+        const data = this.root.querySelector('#data');
+        data.saveReport(this.uid, weekNum, event.detail.data);
       }
     }
     
