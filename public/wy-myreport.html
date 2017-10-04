@@ -4,6 +4,7 @@
 
 <link rel="import" href="wy-text-q.html">
 <link rel="import" href="wy-rate-q.html">
+<link rel="import" href="wy-button.html">
 
 <dom-module id="wy-myreport">
   <template>
@@ -27,34 +28,7 @@
         margin-bottom: 20px;
         background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
       }
-      
-      .btn {
-        padding: 10px;
-        border: thin solid #f9f9f9;                
-        offset: none;
-        border-radius: 20px;
-        width: 100px;        
-        cursor: pointer;
-        background-color: rgba(255, 255, 255, 0);
-	      color: white;        
-      }
-      
-      .btn:hover {
-        background-color: white;
-        color: #54a7b2;
-      }
-
-      .btn:focus {
-        background-color: white;
-        color: #54a7b2;
-        outline: 0;
-      }
-
-      .btn:active {
-        background-color: white;
-        color: #54a7b2;
-      }
-      
+            
       .check-icon {
         margin-right: 8px;
       }
@@ -73,11 +47,11 @@
         <div class="spacer"></div>
         
         <template is="dom-if" if="{{item.isText}}">          
-          <wy-text-q question="{{item.question}}" class="question" data-id$="{{item.qtype}}"></wy-text-q>
+          <wy-text-q question="{{item.question}}" class="question" data-id$="{{item.qtype}}" value="{{item.answer}}"></wy-text-q>
         </template>
                 
         <template is="dom-if" if="{{item.isRate}}">            
-          <wy-rate-q question="{{item.question}}" class="question"></wy-rate-q>
+          <wy-rate-q question="{{item.question}}" class="question" value="{{item.answer}}"></wy-rate-q>
         </template>                
         
       </template>
@@ -86,7 +60,7 @@
     <div class="spacer"></div>
     
     <footer class="footer">
-        <button class="btn"><span class="check-icon">&check;</span>SUBMIT</button>
+      <wy-button class="btn" on-click="_saveReport"><span class="check-icon">&check;</span>SUBMIT</wy-button>
     </footer>
   </template>
   
@@ -101,21 +75,31 @@
             value: [
               {
                 isText: true,
-                question: 'What challenges are you facing? Where are you stuck?'
+                question: 'What challenges are you facing? Where are you stuck?',
+                answer: null
               },
               {
                 isText: true,
-                question: 'What is the best thing that happened to you this week?'
+                question: 'What is the best thing that happened to you this week?',
+                answer: null
               },
               {
                 isRate: true,
-                question: 'How are you feeling?'
+                question: 'How are you feeling?',
+                answer: null
               }
             ]
           }
         };
       }
       
+      _saveReport() {                
+        this.dispatchEvent(new CustomEvent('save-report', {detail: {data: this.data}}));
+      }
+      
+      initReport(report) {
+        this.data = report;
+      }
       
     }
     

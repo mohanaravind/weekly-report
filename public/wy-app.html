@@ -1,11 +1,16 @@
 <link rel="import" href="bower_components/polymer/polymer-element.html">
 <link rel="import" href="bower_components/polymer/lib/utils/import-href.html">
+<link rel="import" href="bower_components/polymer/lib/elements/dom-if.html">
 
 <link rel="import" href="wy-sidepanel.html">
+<link rel="import" href="wy-hamburger-icon.html">
 <link rel="import" href="wy-myreport.html">
 
 <link rel="import" href="wy-teamreport.html">
 <link rel="import" href="wy-settings.html">
+
+<link rel="import" href="wy-authentication.html">
+<link rel="import" href="wy-data.html">
 
 <dom-module id="wy-app">
   <template>
@@ -14,11 +19,22 @@
         display: block;
       }
       
-      .main {
+      #main {
         height: 100%;
         width: 100%;
+        will-change: filter;
       }
-            
+                       
+      .blur {
+        filter: blur(2px);
+      }
+      
+      #hamburgericon {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+                 
       .header {
         height: 50px;
         text-align: center;	
@@ -31,46 +47,104 @@
         font-weight: lighter;
       }
       
-      .is-side-panel-expanded .title, .is-side-panel-expanded .main {
-        filter: blur(2px);
-      }
       
     </style> 
-        
-    <div id="container">
-      <wy-sidepanel id="sidepanel" selected-value="{{title}}" on-toggle="_blur" on-switch="_switch"></wy-sidepanel>
-      <header class="header" on-click="_hideSidepanel">              
-        <h1 class="title">[[title]]</h1>
-      </header>
-      <main id="main" class="main" on-click="_hideSidepanel">
-        <div>
-          Loading...
-        </div>
-      </main>
-    </div>
+    
+    <wy-data id="data"></wy-data>
+    
+    <!-- If not authenticated -->    
+    <template is="dom-if" if="{{!_isAuthenticated}}">      
+      <wy-authentication id="auth" on-auth-success="_onAuthSuccess"></wy-authentication>            
+    </template>
+    
+    <!-- If authenticated -->
+    <template is="dom-if" if="{{_isAuthenticated}}">      
+      <wy-sidepanel id="sidepanel" expanded="{{_expanded}}" selected-value="{{title}}" on-switch="_switch"></wy-sidepanel>
+      <wy-hamburger-icon id="hamburgericon" expanded="{{_expanded}}" on-click="_toggleSidePanel"></wy-hamburger-icon>
+
+      <div id="main" on-click="_hideSidePanel">
+        <header class="header">        
+          <h1 class="title">[[title]]</h1>
+        </header>
+        <div id="content">
+          <!-- View to display the current user's report -->
+          <template is="dom-if" if="{{context === '#myreport'}}">
+            <wy-myreport on-save-report="_saveReport"></wy-myreport>
+          </template>
+          
+          <!-- View to display all the team members report -->
+          <template is="dom-if" if="{{context === '#teamreport'}}">
+            <wy-teamreport></wy-teamreport>
+          </template>
+          
+          <!-- Settings view -->
+          <template is="dom-if" if="{{context === '#settings'}}">
+            <wy-settings></wy-settings>
+          </template>
+        </div>        
+      </div>            
+    </template>
+      
   </template>
   
   <script>    
     class App extends Polymer.Element {
       static get is() { return "wy-app"; }
       
-      connectedCallback() {
+      static get properties() {
+        return {          
+          _expanded: Boolean,
+          _isAuthenticated: {
+            type: Boolean,
+            value: false
+          },
+          context: {
+            type: String            
+          },
+          uid: String
+        };
+      }
+      
+      async connectedCallback() {
         super.connectedCallback();
         
-        window.location.hash = window.location.hash || '#myreport';
+        
+        // Get the current context
+        this.context = 'myreport';
+        
+        // window.location.hash = window.location.hash || '#myreport';
+                        
+        // Get the report data
+        // const weekNum = this._weekOfYear(new Date());
+        // const report = await this.$.data.fetchReport('wn1', weekNum);
+        // report && this.$.myreport.initReport(report);
         
         // Initial load
-        this.$.sidepanel.switchTo(window.location.hash);        
+        // this.$.sidepanel.switchTo(window.location.hash);  
+        
+      
       }
       
-      _blur() {        
-        this.$.container.classList.toggle('is-side-panel-expanded');
+      _toggleSidePanel() {                        
+        this._expanded = !this._expanded;
+                
+        // Add a blur to the main content (Firefox struggles to render blur filter)
+        if (!!window.chrome && !!window.chrome.webstore)
+          this.root.querySelector('#main').classList.toggle('blur');
       }
       
-      _hideSidepanel() {
-        this.$.sidepanel.hide();
+      _hideSidePanel() {
+        // Collapse the sidepanel if it is already expanded
+        this._expanded && this._toggleSidePanel();
       }
       
+      _weekOfYear(date) {
+        var d = new Date(+date);
+        d.setHours(0,0,0);
+        d.setDate(d.getDate()+4-(d.getDay()||7));
+        return Math.ceil((((d-new Date(d.getFullYear(),0,1))/8.64e7)+1)/7);
+      }
+            
       _switch(event) {
         const context = event.detail.context;        
         let tag = null;
@@ -81,25 +155,38 @@
             break;
           case 'Team Report':
             tag = 'wy-teamreport';
-            break;
-            
+            break;            
           case 'Settings':
             tag = 'wy-settings';
             break;
+          case 'SignOut':
+            this.root.querySelector('#auth').signOut();
+            return;                   
         }
                             
         Polymer.importHref('/' + tag + '.html', () => {
-          const main = this.$.main;
+          const content = this.root.querySelector('#content');
           
           // Create the new view element
           const elem = document.createElement(tag);                    
           
           // Remove the existing children
-          main.removeChild(main.children[0]);
+          content.removeChild(content.children[0]);
           
           // Add it to the DOM
-          main.appendChild(elem);
+          content.appendChild(elem);
         });                
+      }
+      
+      _onAuthSuccess(event) {
+        this._isAuthenticated = true;
+        this.uid = event.detail.user.uid;
+      }
+            
+      _saveReport(event) {
+        const weekNum = this._weekOfYear(new Date());
+        const data = this.root.querySelector('#data');
+        data.saveReport(this.uid, weekNum, event.detail.data);
       }
     }
     

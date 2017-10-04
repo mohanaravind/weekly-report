@@ -1,0 +1,64 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<dom-module id="wy-hamburger-icon">
+  <template>
+    <style>                        
+      .hamburger-icon {        
+        cursor: pointer;
+        position: absolute;	
+        top: -10px;
+        z-index: 1;
+        padding: 30px;
+      }
+            
+      .bar {
+        width: 35px;
+        height: 2px;
+        background-color: white;
+        margin: 8px 0;         
+      }
+      
+      :host([expanded]) .bar {
+        background-color: black;
+        transition: 0.2s;
+      }
+
+      :host([expanded]) .bar1 {        
+        transform: rotate(-45deg) translate(-9px, 6px);
+      }
+
+      :host([expanded]) .bar2 {opacity: 0;}
+
+      :host([expanded]) .bar3 {        
+        transform: rotate(45deg) translate(-8px, -8px);
+      }      
+                      
+    </style>
+             
+    <div class="hamburger-icon">
+      <div class="bar bar1"></div>
+      <div class="bar bar2"></div>
+      <div class="bar bar3"></div>
+    </div>
+  </template>
+  
+  <script>    
+    class HamburgerIcon extends Polymer.Element {
+      static get is() { return "wy-hamburger-icon"; }
+      
+      static get properties() {
+        return {
+          expanded: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          }
+        };
+      }
+    }
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-hamburger-icon', HamburgerIcon);
+    });
+  </script>
+</dom-module>

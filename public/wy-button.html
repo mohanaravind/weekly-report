@@ -1,0 +1,62 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<dom-module id="wy-button">
+  <template>    
+    <style>
+      :host {
+        display: block;
+      }
+      
+      .btn {
+        padding: 10px;
+        border: 2px solid #f9f9f9;                
+        offset: none;
+        border-radius: 20px;
+        width: 100px;        
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0);
+	      color: white;
+        background-image: none;
+        user-select: none;        
+      }
+      
+      .btn::-moz-focus-inner {
+        border: 0;
+      }
+      
+      .btn:hover {
+        background-color: white;
+        color: #54a7b2;
+      }
+
+      .btn:focus {
+        background-color: white;
+        color: #54a7b2;
+        outline: 0;
+      }
+
+      .btn:active {
+        background-color: white;
+        color: #54a7b2;
+      }
+      
+            
+    </style> 
+            
+    <button class="btn">
+      <slot></slot>
+    </button>   
+  </template>
+  
+  <script>    
+    class Button extends Polymer.Element {
+      static get is() { return "wy-button"; }
+    }
+    
+    
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-button', Button);
+    });
+  </script>
+</dom-module>

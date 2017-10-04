@@ -28,9 +28,9 @@
     </style> 
         
     <div>      
-      <label class="question">{{question}}</label>
+      <label class="question">[[question]]</label>
       <div class="container">
-        <textarea class="textarea">{{value}}</textarea>
+        <textarea class="textarea" value="{{value::input}}"></textarea>
       </div>
     </div>
   </template>
@@ -42,7 +42,10 @@
       static get properties() {
         return {
           question: String,
-          value: String
+          value: {
+            type: String,
+            notify: true
+          }
         };
       }
     }

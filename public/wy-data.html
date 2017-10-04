@@ -1,0 +1,38 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+<script src="https://www.gstatic.com/firebasejs/4.3.1/firebase.js"></script>
+
+<dom-module id="wy-data">  
+  <script>    
+    class Data extends Polymer.Element {
+      static get is() { return "wy-data" }                        
+      
+      connectedCallback() {
+        super.connectedCallback();        
+      }
+                       
+      static get properties() {
+        
+      }
+                             
+      
+      async fetchReport(userid, weeknumber) {                                        
+        const snapshot = await firebase.database().ref(`/reports/${weeknumber}/${userid}`).once('value');          
+        const reports = snapshot.val();
+        
+        return reports;        
+      }
+      
+      async saveReport(userid, weeknumber, report) {                                        
+        firebase.database().ref(`/reports/${weeknumber}/${userid}`).set(report);
+      }
+      
+      
+    }
+    
+    
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-data', Data);
+    });
+  </script>
+</dom-module>

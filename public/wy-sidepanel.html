@@ -3,158 +3,119 @@
 <dom-module id="wy-sidepanel">
   <template>
     <style>
-      .container {
-        display: block;
-        width: 0;
-        position: absolute;
-        left: 0;        
+      .container {                
+        position: absolute;        
+        left: -200px;
         bottom: 0;
         top: 0;
-        transition: width 0.2s;
+        transition: left 0.2s;
         z-index: 1;
-      }
-      
-      .container.is-expanded {
-        width: 200px;
-      }
-      
-      .hamburger-icon {        
-        cursor: pointer;
-        position: absolute;	
-        top: -10px;
-        z-index: 1;
-        padding: 30px;
-      }
-      
-      .hamburger-icon div {
-        width: 35px;
-        height: 2px;
         background-color: white;
-        margin: 8px 0;        
+	      box-shadow: -1px -3px 12px 2px darkgrey;
       }
-      
-      .bar {
-        width: 35px;
-        height: 5px;
-        background-color: #333;
-        margin: 6px 0;
-        transition: 0.2s;
-      }
-      
-      .is-expanded .bar {
-        background-color: black;
-      }
-
-      .is-expanded .bar1 {        
-        transform: rotate(-45deg) translate(-9px, 6px) ;
-      }
-
-      .is-expanded .bar2 {opacity: 0;}
-
-      .is-expanded .bar3 {        
-        transform: rotate(45deg) translate(-8px, -8px) ;
-      }      
-      
-      .blur {
-        filter: blur(13px);
-        position: absolute;
-      }
-      
-      .hidden-container {
-        position: absolute;
-        bottom: 0;
-        top: 0;
-        right: 0;
+            
+      :host([expanded]) .container {
         left: 0;
-        background-color: white;
-        box-shadow: -1px -3px 12px 2px darkgrey;
       }
+
       
       .links {
         list-style: none;
         margin-top: 70px;        
-        opacity: 0;
-        transition: none;
-        padding: 0;
+        padding: 0;        
       }
       
-      .is-expanded .links {
-        opacity: 1;        
-        transition: opacity 0.5s cubic-bezier(0.4, 0, 1, 1);
-        
-      }
       
       .link-icon {
         font-size: xx-large;
       }
       
       .link {
-        margin-left: 30px;
+        padding: 0 30px;
         height: 50px;
 	      font-size: large;
         cursor: pointer;
-        position: relative;
+        border-bottom: thin solid #e9e9e9;
+        display: flex;	
+	      align-items: center;        
       }
-            
+                        
       .link-anchor {
         text-decoration: none;
-        display: block;
-        height: 100%;
-        width: 100%;
         color: black;
+        display: flex;
+        background-image: none;
+        -webkit-tap-highlight-color: transparent;
       }
+      
+      .link-anchor::-moz-focus-inner, .link-anchor:focus {
+        border: 0;
+      }
+             
       
       .link-anchor.is-selected {
         color: #67b26f;
       }
       
-      .link-text {            
-        position: absolute;
-        top: 13px;
-        left: 44px;
+      /* The icons */
+      
+      .link-anchor[href="#myreport"]:before {
+        content: '\2680';
       }
+      
+      .link-anchor[href="#teamreport"]:before {
+        content: '\274D';
+      }
+      
+      .link-anchor[href="#settings"]:before {
+        content: '\269B';
+      }      
             
-      .is-selected .link-text {
-        font-weight: bold;        
+      .link-anchor[href=""]:before {
+        content: '\27B2';
       }
+      
+      .link-anchor:before {
+        font-size: x-large;
+        margin-top: -6px;
+	      margin-right: 8px;
+      }
+      
+      .signout {
+        position: absolute;
+	      bottom: 20px;
+	      border: none;
+      }
+      
+      
                             
     </style> 
     
-<!--     Icon reference from
-  https://www.toptal.com/designers/htmlarrows/symbols/ 
--->
-
-    <div id="container" class="container">
-      <div class="hamburger-icon" on-click="_toggle">
-        <div class="bar bar1"></div>
-        <div class="bar bar2"></div>
-        <div class="bar bar3"></div>
-      </div>
-      
-      <div class="hidden-container">
-        <ul id="links" class="links" on-click="_switchLink">
-          <li class="link">
-            <a class="link-anchor is-selected" href="#myreport" data-title="My Report">
-              <span class="link-icon">&#9856;</span>
-              <span class="link-text" href="#myreport">My Report</span>
-            </a>
-          </li>
-          <li class="link">
-            <a class="link-anchor" href="#teamreport" data-title="Team Report">
-              <span class="link-icon">&#9854;</span>
-              <span class="link-text" href="#teamreport">Team Report</span>
-            </a>
-          </li>
-          <li class="link">
-            <a class="link-anchor" href="#settings" data-title="Settings">
-              <span class="link-icon">&#9883;</span>
-              <span class="link-text" href="#settings">Settings</span>
-            </a>
-          </li>          
-        </ul>        
-      </div>      
+    <!-- Icon reference from: https://www.toptal.com/designers/htmlarrows/symbols/ -->
+    <div id="container" class="container">              
+      <ul id="links" class="links" on-click="_switchLink">
+        <li class="link">
+          <a class="link-anchor is-selected" href="#myreport" data-title="My Report">
+            My Report
+          </a>
+        </li>
+        <li class="link">
+          <a class="link-anchor" href="#teamreport" data-title="Team Report">              
+            Team Report
+          </a>
+        </li>
+        <li class="link">
+          <a class="link-anchor" href="#settings" data-title="Settings">              
+            Settings
+          </a>
+        </li>
+        <li class="link signout">
+          <a class="link-anchor" href="" data-title="SignOut">
+            Sign Out
+          </a>
+        </li>
+      </ul>      
     </div>
-
   </template>
   
   <script>    
@@ -167,34 +128,30 @@
             type: String,
             value: 'My Report',
             notify: true
+          },
+          expanded: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
           }
         };
       }
-                  
-      _toggle() {
-        // Fire an event
-        this.dispatchEvent(new CustomEvent('toggle', {}));
+            
+      _switchLink(event) {
+        // Get the anchor element even if it was the list that got clicked
+        const anchor = event.target.dataset.title ? event.target : event.target.children[0];        
         
-        this.$.container.classList.toggle('is-expanded');
-      }
-      
-      _switchLink(event) {                       
-        window.requestAnimationFrame(() => {
-          // Remove the existing selection
-          this.$.links.querySelector('.link-anchor.is-selected').classList.remove('is-selected');          
-          
-          const anchor = this.$.links.querySelector(`[href="${location.hash}"].link-anchor`);
-          anchor.classList.add('is-selected');
-          
-          this.selectedValue = anchor.dataset.title;
-          
-          this.dispatchEvent(new CustomEvent('switch', {detail: {context: this.selectedValue}}));
-        });
-      }
-      
-      hide() {
-        // Collapse the panel
-        this.$.container.classList.contains('is-expanded') && this._toggle();
+        // Remove the existing selection
+        this.$.links.querySelector('.link-anchor.is-selected').classList.remove('is-selected');          
+        
+        // Set the clicked anchor as selected
+        anchor.classList.add('is-selected');
+
+        // Set this as the selected value
+        this.selectedValue = anchor.dataset.title;
+
+        // Let others know that there is a context switch
+        this.dispatchEvent(new CustomEvent('switch', {detail: {context: this.selectedValue}}));        
       }
       
       switchTo(hash) {
