@@ -4,21 +4,44 @@
   <template>
     <style>
       :host {
-        display: block;
-        padding: 10px;
+        display: flex;        
+        justify-content: center;
       }
       
-      .container {        
-        display: flex;
+      #container {        
+        display: flex;	      
+        flex-direction: column;
         color: white;
       }
+      
+      .field {
+        padding: 5px;
+        display: flex;
+	      justify-content: flex-end;
+      }
+      
+      .input {
+        padding: 10px;
+	      border: thin solid #cbcbcb;
+        border-radius: 5px;
+      }   
       
             
     </style> 
     
         
-    <div class="container">                  
-      Under construction...
+    <div class="container">      
+      <div class="field">
+        <input id="email" type="email" class="input" placeholder="trigram@3ds.com"/>
+      </div>
+      <div class="field">
+        <input id="password" type="password" class="input" placeholder="password"/>
+      </div>
+      <div class="field">
+        <wy-button on-click="_signIn">
+          SIGN IN
+        </wy-button>
+      </div>
     </div>        
   </template>
   

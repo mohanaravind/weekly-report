@@ -60,6 +60,8 @@
     
     <!-- To display the loader -->
     <wy-loader id="loader" visible></wy-loader>
+        
+    <wy-toast id="fail" message="Authentication failed. Check trigram and password" autohide="true"></wy-toast>
     
   </template>
   
@@ -104,12 +106,17 @@
         
         // Blur the sign in form
         this.$.container.classList.add('blur');
-        this.$.loader.visible = true;               
+        this.$.loader.visible = true;
         
         firebase.auth().signInWithEmailAndPassword(email, password).catch((error) => {
           // Handle Errors here.
           var errorCode = error.code;
-          var errorMessage = error.message;      
+          var errorMessage = error.message;
+          
+          this.$.container.classList.remove('blur');
+          this.$.loader.visible = false;
+          
+          this.$.fail.show();
         });                    
       }
       
