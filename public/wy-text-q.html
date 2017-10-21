@@ -17,20 +17,40 @@
       }
       
       .textarea {
-        padding: 5px;
+        font-family: 'Quicksand';        
         width: 100%;
         height: 70px;
         border: thin solid #cbcbcb;
+        border-color: rgba(255, 255, 255, 0.22);
         border-radius: 5px;
-        flex: 1;
-      }            
+        flex: 1;        
+      }
+      
+      .textarea, .textview {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 5px;
+        border-radius: 3px;
+        font-size: small;
+        margin: 0;
+        width: 100%;
+      }
+                        
+      .textview, .textarea[readonly] {
+        display: none;        
+      }
+      
+      :host([readonly]) .textview{
+        display: block;        
+      }
       
     </style> 
         
     <div>      
       <label class="question">[[question]]</label>
       <div class="container">
-        <textarea class="textarea" value="{{value::input}}"></textarea>
+        <textarea class="textarea" value="{{value::input}}" readonly$="{{readonly}}"></textarea>
+        <p class="textview">[[value]]</p>
       </div>
     </div>
   </template>
@@ -42,12 +62,17 @@
       static get properties() {
         return {
           question: String,
+          readonly: {
+            type: Boolean,            
+            value: false,
+            reflectToAttribute: true
+          },
           value: {
             type: String,
             notify: true
           }
         };
-      }
+      }      
     }
     
     window.addEventListener('WebComponentsReady', function() {      

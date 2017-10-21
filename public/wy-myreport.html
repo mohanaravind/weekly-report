@@ -6,6 +6,7 @@
 <link rel="import" href="wy-rate-q.html">
 <link rel="import" href="wy-button.html">
 
+
 <dom-module id="wy-myreport">
   <template>
     <style>
@@ -25,7 +26,7 @@
       .spacer {
         height: 1px;
         width: 100%;        
-        margin-bottom: 20px;
+        margin-bottom: 5px;
         background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
       }
             
@@ -37,30 +38,53 @@
         display: flex;
         justify-content: flex-end;
       }
+      
+      :host([readonly]) .footer {
+        display: none;
+      }
+      
+      .comments {
+        display: none;
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 5px;
+        border-radius: 3px;
+        font-size: small;
+      }
+      
+      :host([readonly]) .comment {        
+        display: block;
+      }
             
     </style> 
     
         
-    <div>                  
+    <section>                  
       <template is="dom-repeat" items="{{data}}">
 
         <div class="spacer"></div>
         
         <template is="dom-if" if="{{item.isText}}">          
-          <wy-text-q question="{{item.question}}" class="question" data-id$="{{item.qtype}}" value="{{item.answer}}"></wy-text-q>
+          <wy-text-q question="{{item.question}}" class="question" data-id$="{{item.qtype}}" value="{{item.answer}}" readonly="{{readonly}}"></wy-text-q>
         </template>
                 
         <template is="dom-if" if="{{item.isRate}}">            
-          <wy-rate-q question="{{item.question}}" class="question" value="{{item.answer}}"></wy-rate-q>
+          <wy-rate-q question="{{item.question}}" class="question" value="{{item.answer}}" readonly="{{readonly}}"></wy-rate-q>
         </template>                
         
-      </template>
-    </div>
+      </template>            
+    </section>
     
     <div class="spacer"></div>
     
+    <section class="comments">
+      <template is="dom-repeat" items="{{comments}}">
+        <wy-text-q question="{{item.owner}}" class="question" value="{{item.text}}"></wy-text-q>
+      </template>
+    </section>
+    
     <footer class="footer">
-      <wy-button class="btn" on-click="_saveReport"><span class="check-icon">&check;</span>SUBMIT</wy-button>
+      <wy-button class="btn" on-click="_submitReport"><span class="check-icon">&check;</span>SUBMIT</wy-button>
     </footer>
   </template>
   
@@ -70,17 +94,22 @@
       
       static get properties() {
         return {
+          readonly: {
+            type: Boolean,            
+            value: false,
+            reflectToAttribute: true
+          },
           data: {
             type: Array,
             value: [
               {
                 isText: true,
-                question: 'What challenges are you facing? Where are you stuck?',
+                question: 'The challenges you are facing?',
                 answer: null
               },
               {
                 isText: true,
-                question: 'What is the best thing that happened to you this week?',
+                question: 'The best thing that happened to you this week?',
                 answer: null
               },
               {
@@ -89,16 +118,19 @@
                 answer: null
               }
             ]
-          }
+          },
+          comments: Array
         };
       }
       
-      _saveReport() {                
-        this.dispatchEvent(new CustomEvent('save-report', {detail: {data: this.data}}));
+      _submitReport() {
+        const detail = { data: this.data };
+        
+        this.dispatchEvent(new CustomEvent('submit-report', { detail }));
       }
       
       initReport(report) {
-        this.data = report;
+        this.data = report.data;
       }
       
     }

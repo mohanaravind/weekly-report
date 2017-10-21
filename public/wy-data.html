@@ -16,15 +16,21 @@
                              
       
       async fetchReport(userid, weeknumber) {                                        
-        const snapshot = await firebase.database().ref(`/reports/${weeknumber}/${userid}`).once('value');          
+        const snapshot = await firebase.database().ref(`/reports/${weeknumber}/${userid}/report`).once('value');          
         const reports = snapshot.val();
         
         return reports;        
       }
       
-      async saveReport(userid, weeknumber, report) {                                        
-        firebase.database().ref(`/reports/${weeknumber}/${userid}`).set(report);
+      async saveReport(userid, weeknumber, data) {
+        const timestamp = firebase.database.ServerValue.TIMESTAMP;        
+        
+        const report = { data, timestamp }
+        
+        firebase.database().ref(`/reports/${weeknumber}/${userid}/report`).set(report);
       }
+      
+
       
       
     }

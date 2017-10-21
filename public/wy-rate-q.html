@@ -33,7 +33,7 @@
         
     <div id="container">
       <label class="question">[[question]]</label>
-      <div class="rating" on-click="_rate">
+      <div id="rating" class="rating" on-click="_rate">
         <span class="scale">Awful</span>
       
         <span class="rate" data-select="&#10122;" data-deselect="&#10112;" data-value="1">&#10112;</span>
@@ -54,11 +54,13 @@
       static get properties() {
         return {
           question: String,
+          readonly: Boolean,
           value: {
             type: Number,
             notify: true,
             observer: '_valueChanged'
-          }
+          },
+          _inert: Boolean
         };
       }
       
@@ -79,11 +81,19 @@
       _valueChanged() {
         if (this.value) {
            this.$.container.querySelector(`[data-value="${this.value}"]`).click();
-        }        
+        }
+        
+        // If its readonly then become inert
+        this._inert = this.readonly;          
       }
             
       
       _rate(event) {
+        if (this._inert) {
+          event.preventDefault();
+          return;
+        }
+        
         const selected = event.target;
         
         if (selected.dataset.select) {

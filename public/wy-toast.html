@@ -1,0 +1,77 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<dom-module id="wy-toast">
+  <template>    
+    <style>
+      :host {                
+        position: fixed;
+        width: 80%;
+        bottom: -100px;
+        left: 50%;
+        width: 80%;
+        margin-left: -40%;                
+        text-align: center;
+        transition: bottom 0.2s ease-out;
+      }
+      
+      :host([visible]) {        
+        bottom: 100px;
+        transition: bottom 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      }            
+      
+      .container {
+        background: black;
+        padding: 10px;
+        border-radius: 6px;
+        text-align: center;
+        color: white;
+        opacity: 0.8;
+      }
+      
+    </style> 
+                
+    <div class="container" on-click="_dismiss">
+      <div id="message">{{message}}</div>       
+    </div>    
+  </template>
+  
+  <script>    
+    class Toast extends Polymer.Element {
+      static get is() { return "wy-toast"; }
+      
+      static get properties() {
+        return {
+          message: String,
+          visible: {
+            type: Boolean,            
+            value: false,
+            reflectToAttribute: true
+          },
+          autohide: Boolean
+        }
+      }
+        
+      
+      _dismiss() {
+        this.visible = false;
+      }
+      
+      show() {
+        this.visible = true;
+                
+        // If autohide was enabled
+        this.autohide && window.setTimeout(this._dismiss.bind(this), Toast.WAIT_TIME);        
+      }            
+      
+    }
+    
+    Toast.WAIT_TIME = 3000;
+    
+    
+    
+    
+    window.addEventListener('WebComponentsReady', function() {      
+      customElements.define('wy-toast', Toast);
+    });
+  </script>
+</dom-module>
