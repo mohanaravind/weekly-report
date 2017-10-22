@@ -5,15 +5,13 @@
   <script>    
     class Data extends Polymer.Element {
       static get is() { return "wy-data" }                        
-      
-      connectedCallback() {
-        super.connectedCallback();        
-      }
-                       
-      static get properties() {
+
+      async fetchReports(weeknumber) {                                        
+        const snapshot = await firebase.database().ref(`/reports/${weeknumber}`).once('value');          
+        const reports = snapshot.val();
         
+        return reports;        
       }
-                             
       
       async fetchReport(userid, weeknumber) {                                        
         const snapshot = await firebase.database().ref(`/reports/${weeknumber}/${userid}/report`).once('value');          
@@ -23,14 +21,30 @@
       }
       
       async saveReport(userid, weeknumber, data) {
-        const timestamp = firebase.database.ServerValue.TIMESTAMP;        
+        const timestamp = firebase.database.ServerValue.TIMESTAMP;
         
-        const report = { data, timestamp }
+        // Get the reviewer information from settings
+        const reviewer = (await this.fetchSettings(userid)).reviewer;
+        
+        const report = { data, reviewer, timestamp }
         
         firebase.database().ref(`/reports/${weeknumber}/${userid}/report`).set(report);
       }
       
+      async fetchSettings(userid) {
+        const snapshot = await firebase.database().ref(`/settings/${userid}`).once('value');
+        const settings = snapshot.val();
+        
+        return settings;
+      }
+      
+      async saveSettings(userid, data) {
+        firebase.database().ref(`/settings/${userid}`).set(data);
+      }
 
+      async saveComment(userid, weeknumber, comment) {
+        firebase.database().ref(`/reports/${weeknumber}/${userid}/comment`).set(comment);
+      }
       
       
     }
