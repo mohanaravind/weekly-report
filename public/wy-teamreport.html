@@ -1,4 +1,8 @@
 <link rel="import" href="bower_components/polymer/polymer-element.html">
+<link rel="import" href="bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="wy-myreport.html">
 
 <dom-module id="wy-teamreport">
   <template>
@@ -8,19 +12,36 @@
         padding: 10px;
       }
       
-      .container {        
+      .container {
         display: flex;
+        flex-direction: column;
         color: white;
       }
       
-            
+      .report {
+        box-shadow: 0px 0px 5px 0px white;
+        border-radius: 2px;
+        margin-bottom: 10px;
+      }
+      
+      .header {
+        background: rgba(255, 255, 255, 0.28);
+        padding: 15px;          
+      }                              
     </style> 
     
         
-    <div class="container">                  
-      Under construction...
-      
-      <button on-click="_test">Test</button>
+    <div class="container">          
+      <template is="dom-repeat" items="{{reports}}">
+        <div class="report">
+          <header class="header">{{item.userid}}</header>
+          <section>
+            <wy-myreport data-userid="{{item.userid}}" readonly="true" data="{{item.info.report.data}}" 
+                         reviewer="{{item.info.report.reviewer}}" reviewmode="{{item.reviewmode}}"
+                         comment="{{item.info.comment}}" on-comment-save="_saveComment"></wy-myreport>
+          </section>
+        </div>        
+      </template>
     </div>        
   </template>
   
@@ -30,14 +51,46 @@
       
       connectedCallback() {
         super.connectedCallback();
-
       }
       
-      _test() {
-
-        
-        
+      static get properties() {
+        return {
+          reports: Array,
+          userid: String,
+          email: String
+        };
       }
+      
+      _saveComment(event) {
+        event.stopPropagation();
+        
+        const detail = {
+          comment: event.detail.data,
+          userid: event.srcElement.dataUserid
+        };
+        
+        this.dispatchEvent(new CustomEvent(event.type, { detail }));
+      }
+      
+      init(userid, email, reports) {
+        this.userid = userid;
+        this.email = email;
+        
+        //Remove own report from the list
+        delete reports[userid];
+        
+        this.reports = Object.keys(reports).map(key => {
+          const info = reports[key];
+          
+          return {
+            info,
+            userid: key,
+            reviewmode: email === info.report.reviewer
+          };
+        });          
+      }
+      
+      
       
     }
     

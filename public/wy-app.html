@@ -4,8 +4,8 @@
 
 <link rel="import" href="wy-sidepanel.html">
 <link rel="import" href="wy-hamburger-icon.html">
-<link rel="import" href="wy-myreport.html">
 
+<link rel="import" href="wy-myreport.html">
 <link rel="import" href="wy-teamreport.html">
 <link rel="import" href="wy-settings.html">
 
@@ -19,6 +19,10 @@
     <style>
       :host {
         display: block;
+        max-width: min-content;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
       }
       
       #main {
@@ -41,6 +45,7 @@
         height: 50px;
         text-align: center;	
         color: white;
+        min-width: 200px;
       }
       
       .title {
@@ -51,7 +56,9 @@
       
     </style> 
     
-    <wy-data id="data"></wy-data>
+    <wy-data id="data"></wy-data>    
+    <wy-loader id="loader"></wy-loader>
+    <wy-toast id="success" autohide="true"></wy-toast>
     
     <!-- If not authenticated -->    
     <template is="dom-if" if="{{!_isAuthenticated}}">      
@@ -76,19 +83,16 @@
           
           <!-- View to display all the team members report -->
           <template is="dom-if" if="{{_isTeamReport}}">
-            <wy-teamreport id="teamreport"></wy-teamreport>
+            <wy-teamreport id="teamreport" on-comment-save="_saveComment"></wy-teamreport>
           </template>
           
           <!-- Settings view -->
           <template is="dom-if" if="{{_isSettings}}">
-            <wy-settings id="settings"></wy-settings>
+            <wy-settings id="settings" on-settings-update="_saveSettings"></wy-settings>
           </template>
-        </div>
-        <wy-loader id="loader" visible></wy-loader>
+        </div>        
       </div>            
-    </template>
-    
-    <wy-toast id="success" message="Report Submitted!" autohide="true"></wy-toast>
+    </template>        
   </template>
   
   <script>    
@@ -109,10 +113,10 @@
             type: String,
             value: '#myreport'
           },
-          uid: String
+          user: Object
         };
-      }            
-      
+      }
+                  
       _isContext(key, context) {        
         return key === context;
       }
@@ -143,47 +147,64 @@
         this._isMyReport = false;
         this._isTeamReport = false;
         this._isSettings = false;
+        
+        // Get the report data
+        const date = new Date();
+        let weekNum = this._weekOfYear(date);
+        
+        // Show previous week report if we are not yet ready to get new report data
+        const readonly = date.getDay() < App.REPORT_DAY;            
+        weekNum = readonly ? weekNum - 1: weekNum;
                                 
         switch (context) {
-          case '#myreport':
-            
-            // Get the report data
-            const date = new Date();
-            let weekNum = this._weekOfYear(date);
-            
-            // Show previous week report if we are not yet ready to get new report data
-            const readonly = date.getDay() < App.REPORT_DAY;            
-            weekNum = readonly ? weekNum - 1: weekNum;
-                        
-            const report = await this.$.data.fetchReport(this.uid, weekNum);
+          case '#myreport':                                                                                    
+            // Get the data
+            const report = await this.$.data.fetchReport(this.user.uid, weekNum);                     
             this._isMyReport = true;
             
             Polymer.Async.microTask.run(() => {
               const myreport = this.root.querySelector('#myreport');
-
-              report && myreport.initReport(report);              
-              myreport.readonly = readonly || !!report;
-              this.root.querySelector('#loader').visible = false;
+              
+              report && myreport.init(report);              
+              myreport.readonly = readonly || !!report;                                          
+              this.$.loader.visible = false;
             });
             break;
-          case '#teamreport':
-            //TODO
+          case '#teamreport':                                                            
+            // Get the data
+            const reports = await this.$.data.fetchReports(weekNum);
             this._isTeamReport = true;
+                                    
+            Polymer.Async.microTask.run(() => {              
+              this.root.querySelector('#teamreport').init(this.user.uid, this.user.email, reports);
+              this.$.loader.visible = false;
+            });
+                        
             break;            
-          case '#settings':           
-            //TODO
-            this._isSettings = true;
+          case '#settings':                        
+            // Get the data
+            const settings = await this.$.data.fetchSettings(this.user.uid);
+            this._isSettings = true;            
+            
+            Polymer.Async.microTask.run(() => {              
+              this.root.querySelector('#settings').init(settings);
+              this.$.loader.visible = false;
+            });
             break;
           case '':
             // Signout
             this.root.querySelector('#auth').signOut();
             break;                   
-        }                                         
+        }
+        
+        // Hide the side panel
+        this._hideSidePanel();
       }
       
       _onAuthSuccess(event) {
-        this._isAuthenticated = true;
-        this.uid = event.detail.user.uid;
+        this.$.loader.visible = true;
+        this._isAuthenticated = true;        
+        this.user = event.detail.user;
         
         // Get the current context
         this.context = window.location.hash || this.context;                
@@ -191,17 +212,38 @@
       }
             
       _saveReport(event) {
-        const weekNum = this._weekOfYear(new Date());                        
-        
+        const weekNum = this._weekOfYear(new Date());                                
         const data = this.root.querySelector('#data');
         
         // Commit the data
-        data.saveReport(this.uid, weekNum, event.detail.data);      
+        data.saveReport(this.user.uid, weekNum, event.detail.data);      
                 
         // Show success after actual save
-        this.$.success.show();
+        this.$.success.show('Submitted Successfully');
         this.root.querySelector('#myreport').readonly = true;
       }
+      
+      _saveComment(event) {
+        const weekNum = this._weekOfYear(new Date());  
+        const data = this.root.querySelector('#data');
+        
+        // Commit the data
+        data.saveComment(event.detail.userid, weekNum, event.detail.comment);      
+                
+        // Show success after actual save
+        this.$.success.show('Updated Successfully');
+      }
+      
+      _saveSettings(event) {                                    
+        const data = this.root.querySelector('#data');
+        
+        // Commit the data
+        data.saveSettings(this.user.uid, event.detail.data);      
+                
+        // Show success after actual save
+        this.$.success.show('Updated Successfully');
+      }
+      
     }
     
     // The day from which new weekly report could be entered to the system

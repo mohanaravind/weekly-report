@@ -6,6 +6,10 @@
       :host {
         display: flex;        
         justify-content: center;
+        background: rgba(255, 255, 255, 0.09);
+        padding: 10px;
+	      border-radius: 5px;
+        width: 100%;
       }
       
       #container {        
@@ -17,29 +21,31 @@
       .field {
         padding: 5px;
         display: flex;
-	      justify-content: flex-end;
+	      justify-content: flex-start;
+        color: white;
       }
       
       .input {
         padding: 10px;
 	      border: thin solid #cbcbcb;
-        border-radius: 5px;
+        border-radius: 5px;        
       }   
       
             
     </style> 
     
         
-    <div class="container">      
+    <div class="container" on-keydown="_onEnter">      
       <div class="field">
-        <input id="email" type="email" class="input" placeholder="trigram@3ds.com"/>
+        <label>Submit my reports to</label>
       </div>
-      <div class="field">
-        <input id="password" type="password" class="input" placeholder="password"/>
+      <div class="field">        
+        <input id="email" type="email" class="input" placeholder="trigram@3ds.com" value="{{settings.reviewer}}"/>
       </div>
+      
       <div class="field">
-        <wy-button on-click="_signIn">
-          SIGN IN
+        <wy-button on-click="_update">
+          UPDATE
         </wy-button>
       </div>
     </div>        
@@ -47,8 +53,35 @@
   
   <script>    
     class Settings extends Polymer.Element {
-      static get is() { return "wy-settings"; }                        
+      static get is() { return "wy-settings"; }  
+      
+      static get properties() {
+        return {
+          settings: Object
+        }
+      }
+      
+      _onEnter(event) {
+        if (event.keyCode == 13) {
+          this._update();
+        }
+      }
+      
+      _update() {
+        const data = {
+          reviewer: this.$.email.value
+        };
+        const detail = { data };
+        
+        this.dispatchEvent(new CustomEvent('settings-update', { detail }));
+      }
+      
+      init(settings) {
+        this.settings = settings;
+      }
     }
+    
+    
     
     
     

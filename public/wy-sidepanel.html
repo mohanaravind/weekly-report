@@ -164,13 +164,13 @@
         this.context = anchor.getAttribute('href');
 
         // Let others know that there is a context switch
-        this.dispatchEvent(new CustomEvent('switch', {}));        
+        this.dispatchEvent(new CustomEvent('switch', {}));                        
       }
       
       switchTo(hash) {
         const link = this.$.links.querySelector(`[href="${hash}"].link-anchor`);                
         
-        link && link.click();
+        link && link.click();        
       }
       
     }

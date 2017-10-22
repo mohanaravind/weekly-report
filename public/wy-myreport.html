@@ -13,6 +13,8 @@
       :host {
         display: block;
         padding: 10px;
+        background: rgba(255, 255, 255, 0.09);        
+	      border-radius: 5px;
       }
       
       .container {        
@@ -43,7 +45,7 @@
         display: none;
       }
       
-      .comments {
+      .comment {
         display: none;
         color: white;
         background: rgba(255, 255, 255, 0.1);
@@ -52,7 +54,11 @@
         font-size: small;
       }
       
-      :host([readonly]) .comment {        
+      .comment .footer {
+        display: flex;
+      }
+      
+      :host([reviewmode]) .comment {        
         display: block;
       }
             
@@ -77,14 +83,15 @@
     
     <div class="spacer"></div>
     
-    <section class="comments">
-      <template is="dom-repeat" items="{{comments}}">
-        <wy-text-q question="{{item.owner}}" class="question" value="{{item.text}}"></wy-text-q>
-      </template>
+    <section class="comment">      
+      <wy-text-q id="comment" question="{{reviewer}}" class="question" value="{{comment}}" readonly="{{!reviewmode}}"></wy-text-q>
+      <footer class="footer">
+        <wy-button class="btn" on-click="_saveComment"><span class="check-icon">&check;</span>SAVE</wy-button>
+      </footer>
     </section>
     
     <footer class="footer">
-      <wy-button class="btn" on-click="_submitReport"><span class="check-icon">&check;</span>SUBMIT</wy-button>
+      <wy-button class="btn" on-click="_submitReportData"><span class="check-icon">&check;</span>SUBMIT</wy-button>
     </footer>
   </template>
   
@@ -99,17 +106,22 @@
             value: false,
             reflectToAttribute: true
           },
+          reviewmode: {
+            type: Boolean,            
+            value: false,
+            reflectToAttribute: true
+          },
           data: {
             type: Array,
             value: [
               {
                 isText: true,
-                question: 'The challenges you are facing?',
+                question: 'Challenges you are facing?',
                 answer: null
               },
               {
                 isText: true,
-                question: 'The best thing that happened to you this week?',
+                question: 'Best thing that happened to you this week?',
                 answer: null
               },
               {
@@ -119,18 +131,26 @@
               }
             ]
           },
-          comments: Array
+          reviewer: String,          
+          comment: String
         };
       }
       
-      _submitReport() {
+      _submitReportData() {
         const detail = { data: this.data };
         
         this.dispatchEvent(new CustomEvent('submit-report', { detail }));
       }
       
-      initReport(report) {
+      _saveComment() {
+        const detail = { data: this.$.comment.value };
+        
+        this.dispatchEvent(new CustomEvent('comment-save', { detail }));
+      }
+      
+      init(report) {
         this.data = report.data;
+        this.reviewer = report.reviewer;
       }
       
     }
