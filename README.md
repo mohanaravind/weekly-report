@@ -17,5 +17,6 @@ This is a weekly report tracker app
 - [ ] Adding analytics
 - [ ] Making it as Progressive Web App
 - [ ] Making it more responsive
+- [ ] Add favicon
 
 

@@ -151,10 +151,11 @@
         // Get the report data
         const date = new Date();
         let weekNum = this._weekOfYear(date);
+        const day = date.getDay();
         
         // Show previous week report if we are not yet ready to get new report data
-        const readonly = date.getDay() < App.REPORT_DAY;            
-        weekNum = readonly ? weekNum - 1: weekNum;
+        const readonly = day < App.REPORT_DAY;            
+        weekNum = readonly && day > 0  ? weekNum - 1: weekNum;
                                 
         switch (context) {
           case '#myreport':                                                                                    
@@ -247,7 +248,7 @@
       
     }
     
-    // The day from which new weekly report could be entered to the system
+    // The day from which new weekly report could be entered to the system (Wednesday = 3)
     App.REPORT_DAY = 0;
     
     window.addEventListener('WebComponentsReady', function() {      
