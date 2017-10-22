@@ -26,21 +26,50 @@
       
       .header {
         background: rgba(255, 255, 255, 0.28);
-        padding: 15px;          
-      }                              
+        padding: 15px;
+        position: relative;
+      }
+      
+      .displayname, .usericon {
+        z-index: -1;
+      }
+      
+      .usericon {
+        font-size: -webkit-xxx-large;
+        position: absolute;
+        right: 10px;
+        top: -10px;        
+      }
+      
+      .placeholder {
+        text-align: center;
+      }
+      
+      .section.is-collapsed {
+        opacity: 0;
+	      height: 0;
+      }                  
     </style> 
     
         
     <div class="container">          
       <template is="dom-repeat" items="{{reports}}">
         <div class="report">
-          <header class="header">{{item.userid}}</header>
-          <section>
+          <header class="header" on-click="_toggle">
+            <span class="displayname">{{item.info.report.displayname}}</span>
+            <span class="usericon">{{item.info.report.avatar}}</span>
+          </header>
+          <section class="section is-collapsed">
             <wy-myreport data-userid="{{item.userid}}" readonly="true" data="{{item.info.report.data}}" 
                          reviewer="{{item.info.report.reviewer}}" reviewmode="{{item.reviewmode}}"
                          comment="{{item.info.comment}}" on-comment-save="_saveComment"></wy-myreport>
           </section>
         </div>        
+      </template>     
+      <template is="dom-if" if="{{!reports.length}}">
+        <p class="placeholder">
+          Data unavailable
+        </p>
       </template>
     </div>        
   </template>
@@ -59,6 +88,12 @@
           userid: String,
           email: String
         };
+      }
+      
+      _toggle(event) {
+        const srcElem = event.srcElement;
+        const header = srcElem.tagName === 'HEADER' ? srcElem : srcElem.parentElement;                       
+        header.nextElementSibling.classList.toggle('is-collapsed');
       }
       
       _saveComment(event) {

@@ -47,29 +47,26 @@
       
       .comment {
         display: none;
-        color: white;
-        background: rgba(255, 255, 255, 0.1);
+        color: white;       
         padding: 5px;
         border-radius: 3px;
         font-size: small;
       }
-      
-      .comment .footer {
+                  
+      :host([reviewmode]) .comment .footer {
         display: flex;
       }
       
-      :host([reviewmode]) .comment {        
-        display: block;
-      }
+      :host([readonly]) .comment, :host([reviewmode]) .comment {
+        display: block;        
+      }             
+       
             
     </style> 
     
         
     <section>                  
-      <template is="dom-repeat" items="{{data}}">
-
-        <div class="spacer"></div>
-        
+      <template is="dom-repeat" items="{{data}}">                
         <template is="dom-if" if="{{item.isText}}">          
           <wy-text-q question="{{item.question}}" class="question" data-id$="{{item.qtype}}" value="{{item.answer}}" readonly="{{readonly}}"></wy-text-q>
         </template>
@@ -78,13 +75,14 @@
           <wy-rate-q question="{{item.question}}" class="question" value="{{item.answer}}" readonly="{{readonly}}"></wy-rate-q>
         </template>                
         
+        <div class="spacer"></div>
       </template>            
-    </section>
+    </section>        
     
-    <div class="spacer"></div>
-    
-    <section class="comment">      
-      <wy-text-q id="comment" question="{{reviewer}}" class="question" value="{{comment}}" readonly="{{!reviewmode}}"></wy-text-q>
+    <section class="comment"> 
+      <template is="dom-if" if="{{_showComment(comment, reviewmode)}}">
+        <wy-text-q id="comment" question="{{reviewer}}" class="question" value="{{comment}}" readonly="{{!reviewmode}}"></wy-text-q>
+      </template>
       <footer class="footer">
         <wy-button class="btn" on-click="_saveComment"><span class="check-icon">&check;</span>SAVE</wy-button>
       </footer>
@@ -135,6 +133,9 @@
           comment: String
         };
       }
+      _showComment(comment, reviewMode) {
+        return comment || reviewMode;
+      }
       
       _submitReportData() {
         const detail = { data: this.data };
@@ -143,14 +144,18 @@
       }
       
       _saveComment() {
-        const detail = { data: this.$.comment.value };
+        const detail = { data: this.root.querySelector('#comment').value };
         
         this.dispatchEvent(new CustomEvent('comment-save', { detail }));
       }
       
-      init(report) {
-        this.data = report.data;
+      init(weekly) {
+        const {report, comment} = weekly;
+        
+        this.data = report.data;        
         this.reviewer = report.reviewer;
+        this.comment = comment;
+        
       }
       
     }

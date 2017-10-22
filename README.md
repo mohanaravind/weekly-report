@@ -10,11 +10,13 @@ This is a weekly report tracker app
 ## TODO
 - [X] Individual report
 - [X] Team report
+- [ ] Fix the day of week issue
 - [ ] Input validations and messages
-- [ ] Collapsible report inside Team Report
+- [X] Collapsible report inside Team Report
 - [ ] Error handling and Exceptions handling
 - [ ] Adding analytics
 - [ ] Making it as Progressive Web App
 - [ ] Making it more responsive
+- [ ] Add favicon
 
 

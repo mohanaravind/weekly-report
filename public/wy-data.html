@@ -13,20 +13,23 @@
         return reports;        
       }
       
-      async fetchReport(userid, weeknumber) {                                        
-        const snapshot = await firebase.database().ref(`/reports/${weeknumber}/${userid}/report`).once('value');          
-        const reports = snapshot.val();
+      async fetchUserWeekly(userid, weeknumber) {                                        
+        const snapshot = await firebase.database().ref(`/reports/${weeknumber}/${userid}`).once('value');          
+        const weekly = snapshot.val();
         
-        return reports;        
+        return weekly;        
       }
       
-      async saveReport(userid, weeknumber, data) {
+      async saveReport(userid, weeknumber, data, email) {
         const timestamp = firebase.database.ServerValue.TIMESTAMP;
         
-        // Get the reviewer information from settings
-        const reviewer = (await this.fetchSettings(userid)).reviewer;
+        // Get the settings
+        const settings = await this.fetchSettings(userid);
+        const reviewer = settings.reviewer;
+        const displayname = settings.displayname || email;
+        const avatar = settings.avatar || '&#9818;';
         
-        const report = { data, reviewer, timestamp }
+        const report = { data, reviewer, displayname, avatar, timestamp }
         
         firebase.database().ref(`/reports/${weeknumber}/${userid}/report`).set(report);
       }
