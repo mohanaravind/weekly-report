@@ -5,17 +5,22 @@
     <style>
       :host {
         display: flex;        
-        justify-content: center;
         background: rgba(255, 255, 255, 0.09);
-        padding: 10px;
-	      border-radius: 5px;
-        width: 100%;
+        padding: 40px;
+	      border-radius: 5px;        
       }
       
       #container {        
         display: flex;	      
         flex-direction: column;
         color: white;
+      }
+      
+      .spacer {
+        height: 1px;
+        width: 100%;        
+        margin-bottom: 5px;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
       }
       
       .field {
@@ -29,25 +34,74 @@
         padding: 10px;
 	      border: thin solid #cbcbcb;
         border-radius: 5px;        
-      }   
+      }
+      
+      .row {
+        display: flex;
+        justify-content: space-between;
+      }
+      
+      .avatar {
+        color: white;
+        opacity: 0.5;
+        font-size: -webkit-xxx-large;
+      }
+      
+      .avatar.is-selected {
+        opacity: 1;
+        transition: opacity 0.2s ease-in;
+      }
+      
+      .footer {
+        display: flex;
+	      justify-content: flex-end;
+      }
       
             
     </style> 
     
         
-    <div class="container" on-keydown="_onEnter">      
+    <div class="container" on-keydown="_onEnter">                  
+      <div class="field">
+        <label>Your display name</label>
+      </div>
+      <div class="spacer"></div>
+      <div class="field">        
+        <input id="displayname" type="text" class="input" placeholder="Your name" value="{{settings.displayname}}"/>
+      </div>
+      
       <div class="field">
         <label>Submit my reports to</label>
       </div>
+      <div class="spacer"></div>
       <div class="field">        
         <input id="email" type="email" class="input" placeholder="trigram@3ds.com" value="{{settings.reviewer}}"/>
       </div>
       
       <div class="field">
+        <label>Choose your avatar</label>
+      </div>
+      <div class="spacer"></div>
+      <div id="avatars" on-click="_select">
+        <div class="row">
+          <span class="avatar is-selected" data-id="&#9818;">&#9818;</span>
+          <span class="avatar" data-id="&#9819;">&#9819;</span>
+          <span class="avatar" data-id="&#9820;">&#9820;</span>
+        </div>
+        <div class="row">
+          <span class="avatar" data-id="&#9821;">&#9821;</span>
+          <span class="avatar" data-id="&#9822;">&#9822;</span>
+          <span class="avatar" data-id="&#9823;">&#9823;</span>                
+        </div>  
+      </div>      
+      
+      
+      <div class="spacer"></div>
+      <footer class="footer">
         <wy-button on-click="_update">
           UPDATE
         </wy-button>
-      </div>
+      </footer>
     </div>        
   </template>
   
@@ -61,6 +115,15 @@
         }
       }
       
+      _select(event) {
+        const srcElem = event.srcElement;
+        
+        if (srcElem.tagName === 'SPAN') {
+          this.$.avatars.querySelector('.is-selected').classList.remove('is-selected');
+          srcElem.classList.add('is-selected');
+        }
+      }
+      
       _onEnter(event) {
         if (event.keyCode == 13) {
           this._update();
@@ -69,7 +132,9 @@
       
       _update() {
         const data = {
-          reviewer: this.$.email.value
+          reviewer: this.$.email.value,
+          displayname: this.$.displayname.value,
+          avatar: this.$.avatars.querySelector('.is-selected').innerHTML
         };
         const detail = { data };
         
@@ -78,6 +143,11 @@
       
       init(settings) {
         this.settings = settings;
+        
+        if (settings && settings.avatar) {
+          this.$.avatars.querySelector('.is-selected').classList.remove('is-selected');
+          this.$.avatars.querySelector(`[data-id="${settings.avatar}"]`).classList.add('is-selected');
+        }
       }
     }
     

@@ -64,7 +64,7 @@
     <!-- To display the loader -->
     <wy-loader id="loader" visible></wy-loader>
         
-    <wy-toast id="fail" message="Authentication failed. Check trigram and password" autohide="true"></wy-toast>
+    <wy-toast id="fail" autohide="true"></wy-toast>
     
   </template>
   
@@ -117,9 +117,9 @@
           var errorMessage = error.message;
           
           this.$.container.classList.remove('blur');
-          this.$.loader.visible = false;
+          this.$.loader.visible = false;                    
           
-          this.$.fail.show();
+          this.$.fail.show(errorMessage);
         });                    
       }
       

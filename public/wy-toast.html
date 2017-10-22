@@ -58,7 +58,7 @@
       }
       
       show(message) {
-        this.message = message;
+        this.message = message || this.message;
         this.visible = true;        
                 
         // If autohide was enabled

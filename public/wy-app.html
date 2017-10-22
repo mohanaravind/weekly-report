@@ -159,14 +159,14 @@
         switch (context) {
           case '#myreport':                                                                                    
             // Get the data
-            const report = await this.$.data.fetchReport(this.user.uid, weekNum);                     
+            const userWeekly = await this.$.data.fetchUserWeekly(this.user.uid, weekNum);            
             this._isMyReport = true;
             
             Polymer.Async.microTask.run(() => {
               const myreport = this.root.querySelector('#myreport');
               
-              report && myreport.init(report);              
-              myreport.readonly = readonly || !!report;                                          
+              userWeekly && myreport.init(userWeekly);              
+              myreport.readonly = readonly || !!userWeekly;                                          
               this.$.loader.visible = false;
             });
             break;
@@ -183,7 +183,8 @@
             break;            
           case '#settings':                        
             // Get the data
-            const settings = await this.$.data.fetchSettings(this.user.uid);
+            const settings = await this.$.data.fetchSettings(this.user.uid) || {};            
+            settings.displayname = settings.displayname || this.user.email;
             this._isSettings = true;            
             
             Polymer.Async.microTask.run(() => {              
@@ -216,7 +217,7 @@
         const data = this.root.querySelector('#data');
         
         // Commit the data
-        data.saveReport(this.user.uid, weekNum, event.detail.data);      
+        data.saveReport(this.user.uid, weekNum, event.detail.data, this.user.email);      
                 
         // Show success after actual save
         this.$.success.show('Submitted Successfully');
@@ -247,7 +248,7 @@
     }
     
     // The day from which new weekly report could be entered to the system
-    App.REPORT_DAY = 4;
+    App.REPORT_DAY = 0;
     
     window.addEventListener('WebComponentsReady', function() {      
       customElements.define('wy-app', App);
